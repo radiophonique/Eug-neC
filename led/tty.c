@@ -10,6 +10,8 @@
 static struct termios config;
 static int fd;
 
+static struct colors lastCol;
+
 int configure(){
   //prends la config et la met dans ;a struct config
   if(tcgetattr(fd, &config) < 0) {printf("Config erreur\n");return -1; }
@@ -50,8 +52,15 @@ return 0;
 
 int colourWrite(struct colors col){
   unsigned char str[13];
+  if (col.r == lastCol.r && col.g == lastCol.g && col.b == lastCol.b) {
+    return 0;
+  }
   int bWritten = sprintf(str, "%d %d %d;", col.r, col.g,col.b );
   int wr = write(fd, str, bWritten);
+
+  lastCol.r = col.r;
+  lastCol.g = col.g;
+  lastCol.b = col.b;
 }
 
 int init(const char *ttyAddr) {
